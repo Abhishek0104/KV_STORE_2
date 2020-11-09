@@ -40,15 +40,13 @@ int main()
 
     config_file = read_config_file();
 
-    printf("Port_No:%d\n", config_file->port_no);
-    printf("Thread Pool Size: %d\n", config_file->thread_pool_size);
-    printf("Thread Pool Growth: %d\n", config_file->thread_pool_growth);
-    printf("Clients per thread: %d\n", config_file->client_per_thread);
-    printf("Cache Size: %d\n", config_file->cache_size);
-    printf("Cache Policy: %s\n", config_file->cache_policy);
+    
 
     printf("Start Server\n");
     start_server();
+    printf("Start KV_STORE\n");
+    printf("Start KV_CACHE\n");
+    init_cache(config_file);
     printf("Create Thread Pool\n");
     create_thread_pool(config_file->thread_pool_size);
     printf("Accept Connection\n");

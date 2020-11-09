@@ -2,7 +2,7 @@ CFLAG = -g -Wall
 
 all: server
 
-server: KVServer.o ConfigReader.o KVThreads.o
+server: KVServer.o ConfigReader.o KVThreads.o KVCache.o
 	g++ $(CFLAG) -o $@ $^ -lpthread
 
 KVServer.o: KVServer.cpp 
@@ -12,6 +12,9 @@ ConfigReader.o: ConfigReader.cpp KVHeader.h
 	g++ $(CFLAG) -c $< -lpthread
 
 KVThreads.o: KVThreads.cpp
+	g++ $(CFLAG) -c $< -lpthread
+
+KVCache.o: KVCache.cpp
 	g++ $(CFLAG) -c $< -lpthread
 	
 clean:

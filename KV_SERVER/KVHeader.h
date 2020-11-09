@@ -83,4 +83,14 @@ int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout
 
 void * work(void * arg);
 
+// cache functions and structs
+typedef struct CACHE_STORE{
+    list<char *>::iterator iter;
+    char * value;
+} CACHE_STORE;
+void init_cache(CONFIGRATION * config_file);
+char * get(char *);
+int put(char *);
+int del(char *);
+
 #endif

@@ -2,6 +2,8 @@
 
 extern CONFIGRATION* config_file;
 vector<Worker_Thread*> worker_list;
+char * value = (char *)malloc(sizeof(char)*256);
+int put_success;
 
 void create_thread_pool(int no_workers)
 {   
@@ -49,6 +51,56 @@ void * do_work(void * args)
         {
             memset(buffer, 0, MAXBUF);
             read(events[i].data.fd, buffer, MAXBUF);
+
+            if(buffer[0] == '1')
+            {
+                memset(value, 0, sizeof(value));
+                value = get(buffer);
+                if(value == NULL)
+                {
+                    //send error
+                    printf("key not in cache");
+                } else
+                {
+                    // send value
+                    printf("%s\n", value);
+                }
+                
+            } else if(buffer[0] == '2')
+            {
+                // memset(value, 0, sizeof(value));
+                put_success = put(buffer);
+                if(put_success == -1)
+                {
+                    printf("Error while putting\n");
+                } else
+                {
+                    //send success
+                    printf("Success in put\n");
+                }
+                
+            } else if(buffer[0] == '3')
+            {
+                memset(value, 0, sizeof(value));
+                put_success = del(buffer);
+                if(put_success == 1)
+                {
+                    //send error
+                    printf("value deleted\n");
+                } else
+                {
+                    //send success
+                    printf("value to be deleted not found \n");
+                }
+            } else 
+            {
+                // invalid status code.
+                printf("how this is invalid\n");
+            }
+            // send to kv_cache
+
+            //recieve from kv_cache
+            
             puts(buffer);
         }
     }
