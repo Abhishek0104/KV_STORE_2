@@ -6,12 +6,15 @@
 // CLIENTS_PER_THREAD=2
 // CACHE_SIZE=10
 // CACHE_REPLACEMENT=LRU
-
+//todo locking
 int cache_size;
 list<char *> cache_queue;
-unordered_map<char *, CACHE_STORE> cache_map;
-char key[257];
-char kvalue[257];
+// unordered_map<char *, CACHE_STORE > cache_map;
+unordered_map<char *, list<char *>::iterator> key_queue;
+unordered_map<char *, char *> key_value;
+
+extern FILE* file;
+int status;
 // char *cache_policy;
 
 void init_cache(CONFIGRATION * config_file)
@@ -23,80 +26,110 @@ void init_cache(CONFIGRATION * config_file)
 
 int put(char * message)
 {
+    char *key = (char*)malloc(sizeof(char)*257);
+    char *kvalue = (char*)malloc(sizeof(char)*257);
+    memset(key, 0, 257);
+    memset(kvalue, 0, 257);
     memcpy(key, &message[1], 256);
     key[257] = '\0';
     memcpy(kvalue, &message[257], 256);
     kvalue[257] = '\0';
+    printf("Mesaage:%s", message);
     printf("PUT:Key is %s\n", key);
     printf("kvalue is %s\n", kvalue);
     
-
-    if(cache_map.find(key) == cache_map.end()){
-        cout<<"Not in cache"<<"\n";
-        if(cache_queue.size() == cache_size){//modified write in KVstore
-            char * last_elem = cache_queue.back();
-            printf("Replaced %s\n",last_elem);
-            // key_queue.erase(last_elem);
-            // key_kvalue.erase(last_elem);
-            cache_map.erase(last_elem);
-            cache_queue.pop_back();
-        }
-        cache_queue.push_front(key);
-        cache_map[key].value = kvalue;
-        cache_map[key].iter = cache_queue.begin();
-        
-    }
-    else//kvalue update
+    for (auto ele: key_value)
     {
-        cout<<"kvalue updated\n";
-        cache_queue.erase(cache_map[key].iter);
-        cache_queue.push_front(key);
-        cache_map[key].value = kvalue;
-        cache_map[key].iter = cache_queue.begin();
+        cout << "Key: "<<ele.first<<"\nValue:"<<ele.second<<endl;
     }
-    return 1;
-    //todo Store first to KV_store
 
+    //todo Store first to KV_store
+    status =  insert(file, key, kvalue);
+
+    if (status == 1)
+    {
+        if(key_queue.find(key) == key_queue.end()){
+            cout<<"CACHE:Not in cache"<<"\n";
+            if(cache_queue.size() == cache_size){//modified write in KVstore
+                char * last_elem = cache_queue.back();
+                printf("CACHE:Replaced \n");
+                key_queue.erase(last_elem);
+                key_value.erase(last_elem);
+                // cache_map.erase(last_elem);
+                // cache_queue.pop_back();
+            }
+            cache_queue.push_front(key);
+            // cache_map[key].value = kvalue;
+            // cache_map[key].iter = cache_queue.begin();
+            key_value[key] = kvalue;
+            key_queue[key] = cache_queue.begin();
+            
+        }
+        else//kvalue update
+        {
+            cout<<"CACHE: kvalue updated\n";
+            cache_queue.erase(key_queue[key]);
+            cache_queue.push_front(key);
+            // cache_map[key].value = kvalue;
+            // cache_map[key].iter = cache_queue.begin();
+            key_value[key] = kvalue;
+            key_queue[key] = cache_queue.begin();
+        }
+    }
+
+    
+    // return 1;
+    free(key);
+    free(kvalue);
+    return status;
 }
 
 char * get(char* message)
 {
+    char *key = (char*)malloc(sizeof(char)*257);
+    memset(key, 0, 257);
+    // memset(kvalue, 0, 257);
     memcpy(key, &message[1], 256);
     key[257] = '\0';
-    printf("GET:Key is %s\n", key);
+    // printf("GET:Key is %s\n", key);
 
-    if(cache_map.find(key)==cache_map.end()){
-        // todo search in kvstore if present add to cache else error
-        return NULL;
+    if(key_queue.find(key)==key_queue.end()){
+        //todo store in cache
+        return search_value(file, key);
     }
     else
     {
-        cache_queue.erase(cache_map[key].iter);
+        cache_queue.erase(key_queue[key]);
         cache_queue.push_front(key);
-        cache_map[key].iter = cache_queue.begin();
-        return cache_map[key].value;
+        key_queue[key] = cache_queue.begin();
+        return key_value[key];
     }
-
+    
 }
 
 int del(char * message)
 {
+    char *key = (char*)malloc(sizeof(char)*257);
+    memset(key, 0, 257);
+    // memset(kvalue, 0, 257);
     memcpy(key, &message[1], 256);
     key[257] = '\0';
-    printf("DEL:Key is %s\n", key);
+    // printf("CACHE:DEL:Key is %s\n", key);
 
 
-    if(cache_map.find(key) != cache_map.end())
+    if(key_queue.find(key) != key_queue.end())
     {   
-        cout<<key<<" Deleted from cache :("<<"\n";
-        cache_queue.erase(cache_map[key].iter);
-        // key_kvalue.erase(key);
-        // key_queue.erase(key);
-        cache_map.erase(key);
-        return 1;
+        cout<<"CACHE: Deleted from cache :("<<"\n";
+        cache_queue.erase(key_queue[key]);
+        key_value.erase(key);
+        key_queue.erase(key);
+        // cache_map.erase(key);
     }
-    return 0;
     //todo delete from store if present or sent error
+    status = delete_entry(file, key);
+    free(key);
+    return status;
+    
 }
 
 

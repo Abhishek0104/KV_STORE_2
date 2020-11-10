@@ -93,4 +93,10 @@ char * get(char *);
 int put(char *);
 int del(char *);
 
+// store functions and struck here
+FILE* initialise_kv_store();
+int insert(FILE* file_fd, char * key, char * value);
+char * search_value(FILE* file_fd, char * key);
+int delete_entry(FILE * file_fd, char *key);
+
 #endif

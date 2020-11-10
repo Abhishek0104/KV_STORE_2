@@ -21,6 +21,7 @@ struct sockaddr_in client;
 struct sockaddr_in addr;
 CONFIGRATION* config_file;
 extern vector<Worker_Thread*> worker_list;
+FILE* file;
 
 void sigterm_handler(int sig)
 {
@@ -45,6 +46,7 @@ int main()
     printf("Start Server\n");
     start_server();
     printf("Start KV_STORE\n");
+    file = initialise_kv_store();
     printf("Start KV_CACHE\n");
     init_cache(config_file);
     printf("Create Thread Pool\n");

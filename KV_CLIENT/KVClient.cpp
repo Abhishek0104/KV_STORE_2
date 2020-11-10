@@ -72,7 +72,6 @@ void put()
 	add_padding(value);
 	// printf("%s\n", key);
 	message = join("2", key, value);
-	cout<<message<<"\n";
 	// send the data 
 	write(sock_fd, message, strlen(message));
 
@@ -92,7 +91,6 @@ void del()
 	add_padding(key);
 	message = join("3", key, "");
 	add_padding(message + 257);
-	cout<<message<<"\n";
 	// printf("%s\n", key);
 	// join("3", key, NULL);
 	// send the data 
@@ -127,7 +125,7 @@ int main(int argc, char** argv)
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-    addr.sin_port = htons(8080);
+    addr.sin_port = htons(8081);
     addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	connect(sock_fd, (struct sockaddr *)&addr, sizeof(addr));

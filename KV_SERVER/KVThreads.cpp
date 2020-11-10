@@ -59,11 +59,11 @@ void * do_work(void * args)
                 if(value == NULL)
                 {
                     //send error
-                    printf("key not in cache");
+                    printf("Thread:key not in cache");
                 } else
                 {
                     // send value
-                    printf("%s\n", value);
+                    printf("Thread:%s\n", value);
                 }
                 
             } else if(buffer[0] == '2')
@@ -72,11 +72,11 @@ void * do_work(void * args)
                 put_success = put(buffer);
                 if(put_success == -1)
                 {
-                    printf("Error while putting\n");
+                    printf("Thread:Error while putting\n");
                 } else
                 {
                     //send success
-                    printf("Success in put\n");
+                    printf("Thread:Success in put\n");
                 }
                 
             } else if(buffer[0] == '3')
@@ -86,22 +86,22 @@ void * do_work(void * args)
                 if(put_success == 1)
                 {
                     //send error
-                    printf("value deleted\n");
+                    printf("Thread:value deleted\n");
                 } else
                 {
                     //send success
-                    printf("value to be deleted not found \n");
+                    printf("Thread:value to be deleted not found \n");
                 }
             } else 
             {
                 // invalid status code.
-                printf("how this is invalid\n");
+                printf("Thread:how this is invalid\n");
             }
             // send to kv_cache
 
             //recieve from kv_cache
             
-            puts(buffer);
+            // puts(buffer);
         }
     }
     pthread_exit(NULL);
