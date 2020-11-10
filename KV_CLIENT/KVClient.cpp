@@ -1,6 +1,4 @@
 #include "../KV_SERVER/KVHeader.h"
-
-
 #define GET 1
 #define PUT 2
 #define DEL 3
@@ -10,6 +8,8 @@ int sock_fd;
 // char message[513];
 
 using namespace std;
+
+char read_buffer[513];
 
 int choice;
 
@@ -53,7 +53,8 @@ void get()
 	write(sock_fd, message, strlen(message));
 
 	// wait for status code
-
+	read(sock_fd, read_buffer, strlen(read_buffer));
+	printf("Returned value is :%s\n", read_buffer);
 	// wait for data
 
 }
